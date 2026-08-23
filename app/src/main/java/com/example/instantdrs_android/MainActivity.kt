@@ -14,6 +14,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.screens.SplashScreen
 import com.example.instantdrs_android.ui.screens.LoginScreen
+import com.example.instantdrs_android.ui.screens.RegistrationScreen
+
+enum class Screen {
+    Splash, Login, Register
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,12 +26,22 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             InstantDRSAndroidTheme {
-                var showSplash by remember { mutableStateOf(true) }
+                var currentScreen by remember { mutableStateOf(Screen.Splash) }
 
-                if (showSplash) {
-                    SplashScreen(onTimeout = { showSplash = false })
-                } else {
-                    LoginScreen()
+                when (currentScreen) {
+                    Screen.Splash -> {
+                        SplashScreen(onTimeout = { currentScreen = Screen.Login })
+                    }
+                    Screen.Login -> {
+                        LoginScreen(
+                            onNavigateToRegister = { currentScreen = Screen.Register }
+                        )
+                    }
+                    Screen.Register -> {
+                        RegistrationScreen(
+                            onNavigateToLogin = { currentScreen = Screen.Login }
+                        )
+                    }
                 }
             }
         }

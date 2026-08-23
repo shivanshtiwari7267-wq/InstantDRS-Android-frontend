@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.screens.SplashScreen
+import com.example.instantdrs_android.ui.screens.LoginScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 if (showSplash) {
                     SplashScreen(onTimeout = { showSplash = false })
                 } else {
-                    MainScreen()
+                    LoginScreen()
                 }
             }
         }

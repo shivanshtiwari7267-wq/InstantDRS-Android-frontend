@@ -15,9 +15,10 @@ import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.screens.SplashScreen
 import com.example.instantdrs_android.ui.screens.LoginScreen
 import com.example.instantdrs_android.ui.screens.RegistrationScreen
+import com.example.instantdrs_android.ui.screens.HomeScreen
 
 enum class Screen {
-    Splash, Login, Register
+    Splash, Login, Register, Home
 }
 
 class MainActivity : ComponentActivity() {
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
                     }
                     Screen.Login -> {
                         LoginScreen(
+                            onLoginClick = { currentScreen = Screen.Home },
                             onNavigateToRegister = { currentScreen = Screen.Register }
                         )
                     }
@@ -41,6 +43,9 @@ class MainActivity : ComponentActivity() {
                         RegistrationScreen(
                             onNavigateToLogin = { currentScreen = Screen.Login }
                         )
+                    }
+                    Screen.Home -> {
+                        HomeScreen()
                     }
                 }
             }

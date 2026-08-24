@@ -33,7 +33,7 @@ import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit = {},
+    onLoginClick: () -> Unit = {},
     onNavigateToRegister: () -> Unit = {}
 ) {
     var username by remember { mutableStateOf("") }
@@ -108,8 +108,7 @@ fun LoginScreen(
                 text = "LOGIN",
                 onClick = { 
                     // Safe placeholder action
-                    // onLoginClick(username, password)
-                    onLoginSuccess() 
+                    onLoginClick() 
                 }
             )
 

@@ -17,9 +17,10 @@ import com.example.instantdrs_android.ui.screens.LoginScreen
 import com.example.instantdrs_android.ui.screens.RegistrationScreen
 import com.example.instantdrs_android.ui.screens.HomeScreen
 import com.example.instantdrs_android.ui.screens.GamesScreen
+import com.example.instantdrs_android.ui.screens.CreateGameScreen
 
 enum class Screen {
-    Splash, Login, Register, Home, Games
+    Splash, Login, Register, Home, Games, CreateGame
 }
 
 class MainActivity : ComponentActivity() {
@@ -53,8 +54,17 @@ class MainActivity : ComponentActivity() {
                     Screen.Games -> {
                         GamesScreen(
                             onNavigateBack = { currentScreen = Screen.Home },
-                            onCreateGameClick = { /* Placeholder for CreateGameScreen */ },
+                            onCreateGameClick = { currentScreen = Screen.CreateGame },
                             onGameClick = { /* Placeholder for GameDetailsScreen */ }
+                        )
+                    }
+                    Screen.CreateGame -> {
+                        CreateGameScreen(
+                            onNavigateBack = { currentScreen = Screen.Games },
+                            onGameCreated = { 
+                                // Placeholder for transitioning to GameDetailsScreen
+                                currentScreen = Screen.Games 
+                            }
                         )
                     }
                 }

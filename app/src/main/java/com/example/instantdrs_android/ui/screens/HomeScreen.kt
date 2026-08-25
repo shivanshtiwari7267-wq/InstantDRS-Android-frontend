@@ -120,7 +120,7 @@ fun HomeScreen(
     }
 }
 
-@Preview(showBackground = true)
+ @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     InstantDRSAndroidTheme {

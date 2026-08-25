@@ -18,9 +18,11 @@ import com.example.instantdrs_android.ui.screens.RegistrationScreen
 import com.example.instantdrs_android.ui.screens.HomeScreen
 import com.example.instantdrs_android.ui.screens.GameRulesScreen
 import com.example.instantdrs_android.ui.screens.HistoryScreen
+import com.example.instantdrs_android.ui.screens.GameSessionScreen
+import com.example.instantdrs_android.ui.screens.CameraScreen
 
 enum class Screen {
-    Splash, Login, Register, Home, GameRules, History
+    Splash, Login, Register, Home, GameRules, GameSession, Camera, History
 }
 
 class MainActivity : ComponentActivity() {
@@ -60,7 +62,33 @@ class MainActivity : ComponentActivity() {
                         GameRulesScreen(
                             gameTitle = selectedGame,
                             onNavigateBack = { currentScreen = Screen.Home },
-                            onStartGameClick = { /* Start Game Logic */ }
+                            onStartGameClick = { currentScreen = Screen.GameSession }
+                        )
+                    }
+                    Screen.GameSession -> {
+                        val rules = when (selectedGame.lowercase()) {
+                            "tennis" -> listOf("Ball In / Out", "Line/Boundary Review")
+                            "cricket" -> listOf("Decision Review")
+                            else -> listOf("Ball In / Out", "Net Touch")
+                        }
+                        GameSessionScreen(
+                            sportName = selectedGame,
+                            rules = rules,
+                            onStartRecordingClick = { currentScreen = Screen.Camera },
+                            onBackClick = { currentScreen = Screen.GameRules }
+                        )
+                    }
+                    Screen.Camera -> {
+                        val rules = when (selectedGame.lowercase()) {
+                            "tennis" -> listOf("Ball In / Out", "Line/Boundary Review")
+                            "cricket" -> listOf("Decision Review")
+                            else -> listOf("Ball In / Out", "Net Touch")
+                        }
+                        CameraScreen(
+                            sportName = selectedGame,
+                            rules = rules,
+                            onViewRulesClick = { currentScreen = Screen.GameRules },
+                            onBackClick = { currentScreen = Screen.GameSession }
                         )
                     }
                     Screen.History -> {

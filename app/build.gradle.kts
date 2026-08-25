@@ -6,9 +6,7 @@ plugins {
 android {
     namespace = "com.example.instantdrs_android"
 
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.instantdrs_android"

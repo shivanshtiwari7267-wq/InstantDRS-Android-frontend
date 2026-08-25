@@ -1,36 +1,32 @@
 package com.example.instantdrs_android.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.instantdrs_android.ui.components.InstantDRSButton
 import com.example.instantdrs_android.ui.components.InstantDRSCard
 import com.example.instantdrs_android.ui.components.InstantDRSScreenContainer
-import com.example.instantdrs_android.ui.components.InstantDRSStatusBadge
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.theme.LocalSpacing
 
-data class MockSport(val name: String, val status: String, val rules: String)
+data class MockHistoryGame(val title: String, val date: String, val status: String)
 
-val mockSports = listOf(
-    MockSport("Volleyball", "DRS Available", "Ball In/Out • Net Touch"),
-    MockSport("Tennis", "DRS Available", "Line/Out Review"),
-    MockSport("Cricket", "DRS Available", "Decision Review")
+val mockHistoryGames = listOf(
+    MockHistoryGame("Finals Match", "20 Aug 2026", "Completed"),
+    MockHistoryGame("Semi Final", "19 Aug 2026", "Completed"),
+    MockHistoryGame("Quarter Final", "18 Aug 2026", "Completed")
 )
 
 @Composable
-fun HomeScreen(
-    onGameClick: (String) -> Unit = {},
-    onHistoryClick: () -> Unit = {}
+fun HistoryScreen(
+    onNavigateBack: () -> Unit = {}
 ) {
     InstantDRSScreenContainer {
         Column(
@@ -38,7 +34,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "HOME",
+                text = "HISTORY",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -46,7 +42,7 @@ fun HomeScreen(
             )
 
             Text(
-                text = "GAMES",
+                text = "Previous Games",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -61,45 +57,41 @@ fun HomeScreen(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.medium)
             ) {
-                items(mockSports) { sport ->
-                    InstantDRSCard(
-                        modifier = Modifier.clickable { onGameClick(sport.name) }
-                    ) {
+                items(mockHistoryGames) { game ->
+                    InstantDRSCard {
                         Text(
-                            text = sport.name,
+                            text = game.title,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(LocalSpacing.current.small))
-                        InstantDRSStatusBadge(
-                            text = sport.status,
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Spacer(modifier = Modifier.height(LocalSpacing.current.medium))
                         Text(
-                            text = sport.rules,
+                            text = game.date,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(LocalSpacing.current.small))
+                        Text(
+                            text = game.status,
                             style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(LocalSpacing.current.large))
-
-            InstantDRSButton(
-                text = "HISTORY",
-                onClick = onHistoryClick
-            )
+            TextButton(
+                onClick = onNavigateBack,
+                modifier = Modifier.padding(top = LocalSpacing.current.medium)
+            ) {
+                Text("< Back", style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+fun HistoryScreenPreview() {
     InstantDRSAndroidTheme {
-        HomeScreen()
+        HistoryScreen()
     }
 }

@@ -16,11 +16,11 @@ import com.example.instantdrs_android.ui.screens.SplashScreen
 import com.example.instantdrs_android.ui.screens.LoginScreen
 import com.example.instantdrs_android.ui.screens.RegistrationScreen
 import com.example.instantdrs_android.ui.screens.HomeScreen
-import com.example.instantdrs_android.ui.screens.GamesScreen
-import com.example.instantdrs_android.ui.screens.CreateGameScreen
+import com.example.instantdrs_android.ui.screens.GameRulesScreen
+import com.example.instantdrs_android.ui.screens.HistoryScreen
 
 enum class Screen {
-    Splash, Login, Register, Home, Games, CreateGame
+    Splash, Login, Register, Home, GameRules, History
 }
 
 class MainActivity : ComponentActivity() {
@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             InstantDRSAndroidTheme {
                 var currentScreen by remember { mutableStateOf(Screen.Splash) }
+                var selectedGame by remember { mutableStateOf("") }
 
                 when (currentScreen) {
                     Screen.Splash -> {
@@ -48,23 +49,23 @@ class MainActivity : ComponentActivity() {
                     }
                     Screen.Home -> {
                         HomeScreen(
-                            onGamesClick = { currentScreen = Screen.Games }
+                            onGameClick = { gameTitle -> 
+                                selectedGame = gameTitle
+                                currentScreen = Screen.GameRules 
+                            },
+                            onHistoryClick = { currentScreen = Screen.History }
                         )
                     }
-                    Screen.Games -> {
-                        GamesScreen(
+                    Screen.GameRules -> {
+                        GameRulesScreen(
+                            gameTitle = selectedGame,
                             onNavigateBack = { currentScreen = Screen.Home },
-                            onCreateGameClick = { currentScreen = Screen.CreateGame },
-                            onGameClick = { /* Placeholder for GameDetailsScreen */ }
+                            onStartGameClick = { /* Start Game Logic */ }
                         )
                     }
-                    Screen.CreateGame -> {
-                        CreateGameScreen(
-                            onNavigateBack = { currentScreen = Screen.Games },
-                            onGameCreated = { 
-                                // Placeholder for transitioning to GameDetailsScreen
-                                currentScreen = Screen.Games 
-                            }
+                    Screen.History -> {
+                        HistoryScreen(
+                            onNavigateBack = { currentScreen = Screen.Home }
                         )
                     }
                 }

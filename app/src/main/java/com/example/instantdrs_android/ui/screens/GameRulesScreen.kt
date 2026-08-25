@@ -51,6 +51,7 @@ fun GameRulesScreen(
                 text = "DRS RULES",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
+                color = androidx.compose.ui.graphics.Color.White,
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(bottom = LocalSpacing.current.medium)
@@ -63,7 +64,7 @@ fun GameRulesScreen(
                 verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.small)
             ) {
                 rules.forEach { rule ->
-                    Text(rule, style = MaterialTheme.typography.bodyLarge)
+                    Text(rule, style = MaterialTheme.typography.bodyLarge, color = androidx.compose.ui.graphics.Color.White)
                 }
             }
 

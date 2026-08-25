@@ -1,5 +1,11 @@
 package com.example.instantdrs_android.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.instantdrs_android.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,12 +25,12 @@ import com.example.instantdrs_android.ui.components.InstantDRSStatusBadge
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.theme.LocalSpacing
 
-data class MockSport(val name: String, val status: String, val rules: String)
+data class MockSport(val name: String, val status: String, val rules: String, val imageRes: Int)
 
 val mockSports = listOf(
-    MockSport("Volleyball", "DRS Available", "Ball In/Out • Net Touch"),
-    MockSport("Tennis", "DRS Available", "Line/Out Review"),
-    MockSport("Cricket", "DRS Available", "Decision Review")
+    MockSport("Volleyball", "DRS Available", "Ball In/Out • Net Touch", R.mipmap.volleyball),
+    MockSport("Tennis", "DRS Available", "Line/Out Review", R.mipmap.tennis),
+    MockSport("Cricket", "DRS Available", "Decision Review", R.mipmap.cricket)
 )
 
 @Composable
@@ -65,23 +71,41 @@ fun HomeScreen(
                     InstantDRSCard(
                         modifier = Modifier.clickable { onGameClick(sport.name) }
                     ) {
-                        Text(
-                            text = sport.name,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(LocalSpacing.current.small))
-                        InstantDRSStatusBadge(
-                            text = sport.status,
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Spacer(modifier = Modifier.height(LocalSpacing.current.medium))
-                        Text(
-                            text = sport.rules,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(sport.imageRes),
+                                contentDescription = sport.name,
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(RoundedCornerShape(10.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column {
+                                Text(
+                                    text = sport.name,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(LocalSpacing.current.small))
+                                InstantDRSStatusBadge(
+                                    text = sport.status,
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Spacer(modifier = Modifier.height(LocalSpacing.current.medium))
+                                Text(
+                                    text = sport.rules,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
                 }
             }

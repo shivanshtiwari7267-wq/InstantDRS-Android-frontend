@@ -25,6 +25,8 @@ fun CameraScreen(
     sportName: String,
     rules: List<String>,
     onViewRulesClick: () -> Unit,
+    onViewRecordingClick: () -> Unit,
+    onDrsReviewClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     var recordingState by remember { mutableStateOf("READY") }
@@ -50,6 +52,8 @@ fun CameraScreen(
             onStopRecording = { recordingState = "STOPPED" },
             onEnterFullScreen = { isFullScreen = true },
             onViewRulesClick = onViewRulesClick,
+            onViewRecordingClick = onViewRecordingClick,
+            onDrsReviewClick = onDrsReviewClick,
             onBackClick = onBackClick
         )
     }
@@ -64,6 +68,8 @@ fun NormalCameraMode(
     onStopRecording: () -> Unit,
     onEnterFullScreen: () -> Unit,
     onViewRulesClick: () -> Unit,
+    onViewRecordingClick: () -> Unit,
+    onDrsReviewClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     val spacing = LocalSpacing.current
@@ -235,12 +241,20 @@ fun NormalCameraMode(
                 enabled = recordingState == "RECORDING"
             )
 
+            if (recordingState == "STOPPED") {
+                InstantDRSButton(
+                    text = "VIEW RECORDING",
+                    onClick = onViewRecordingClick,
+                    modifier = Modifier.padding(bottom = spacing.medium)
+                )
+            }
+
             // DRS Review Button
             InstantDRSButton(
                 text = "DRS REVIEW",
-                onClick = { /* Not implemented yet */ },
+                onClick = onDrsReviewClick,
                 modifier = Modifier.padding(bottom = 4.dp),
-                enabled = false
+                enabled = true
             )
             Text(
                 text = "Press during recording to mark a review",
@@ -396,6 +410,8 @@ fun CameraScreenPreview() {
             sportName = "Volleyball",
             rules = listOf("Ball In / Out", "Net Touch"),
             onViewRulesClick = {},
+            onViewRecordingClick = {},
+            onDrsReviewClick = {},
             onBackClick = {}
         )
     }

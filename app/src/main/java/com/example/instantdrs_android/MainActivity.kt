@@ -20,9 +20,12 @@ import com.example.instantdrs_android.ui.screens.GameRulesScreen
 import com.example.instantdrs_android.ui.screens.HistoryScreen
 import com.example.instantdrs_android.ui.screens.GameSessionScreen
 import com.example.instantdrs_android.ui.screens.CameraScreen
+import com.example.instantdrs_android.ui.screens.RecordingPreviewScreen
+import com.example.instantdrs_android.ui.screens.DRSReviewDashboardScreen
+import com.example.instantdrs_android.ui.screens.TimelineScreen
 
 enum class Screen {
-    Splash, Login, Register, Home, GameRules, GameSession, Camera, History
+    Splash, Login, Register, Home, GameRules, GameSession, Camera, RecordingPreview, DRSReviewDashboard, Timeline, History
 }
 
 class MainActivity : ComponentActivity() {
@@ -88,7 +91,43 @@ class MainActivity : ComponentActivity() {
                             sportName = selectedGame,
                             rules = rules,
                             onViewRulesClick = { currentScreen = Screen.GameRules },
+                            onViewRecordingClick = { currentScreen = Screen.RecordingPreview },
+                            onDrsReviewClick = { currentScreen = Screen.DRSReviewDashboard },
                             onBackClick = { currentScreen = Screen.GameSession }
+                        )
+                    }
+                    Screen.RecordingPreview -> {
+                        RecordingPreviewScreen(
+                            sportName = selectedGame,
+                            onSaveReviewClick = { currentScreen = Screen.DRSReviewDashboard },
+                            onDiscardClick = { currentScreen = Screen.Camera },
+                            onBackClick = { currentScreen = Screen.Camera }
+                        )
+                    }
+                    Screen.DRSReviewDashboard -> {
+                        val rules = when (selectedGame.lowercase()) {
+                            "tennis" -> listOf("Ball In / Out", "Line/Boundary Review")
+                            "cricket" -> listOf("Decision Review")
+                            else -> listOf("Ball In / Out", "Net Touch")
+                        }
+                        DRSReviewDashboardScreen(
+                            sportName = selectedGame,
+                            decision = "BALL IN",
+                            confidence = 94,
+                            ruleName = rules.firstOrNull() ?: "Decision Review",
+                            reviewId = "DRS-0001",
+                            onViewEvidenceClick = { /* Placeholder for Evidence Quality Screen */ },
+                            onTimelineClick = { currentScreen = Screen.Timeline },
+                            onReplayClick = { /* Placeholder for Replay Screen */ },
+                            onSaveReviewClick = { /* Placeholder for backend save */ },
+                            onBackClick = { currentScreen = Screen.Camera }
+                        )
+                    }
+                    Screen.Timeline -> {
+                        TimelineScreen(
+                            sportName = selectedGame,
+                            onReplayEventClick = { /* Placeholder for Replay Screen */ },
+                            onBackClick = { currentScreen = Screen.DRSReviewDashboard }
                         )
                     }
                     Screen.History -> {

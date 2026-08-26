@@ -22,6 +22,7 @@ fun RecordingPreviewScreen(
     sportName: String,
     onSaveReviewClick: () -> Unit,
     onDiscardClick: () -> Unit,
+    onReplayClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
     val spacing = LocalSpacing.current
@@ -157,6 +158,13 @@ fun RecordingPreviewScreen(
                 }
             }
 
+            // Replay Button
+            InstantDRSSecondaryButton(
+                text = "REPLAY",
+                onClick = onReplayClick,
+                modifier = Modifier.padding(bottom = spacing.small)
+            )
+
             // Save Review Button
             InstantDRSButton(
                 text = "SAVE REVIEW",
@@ -224,6 +232,7 @@ fun RecordingPreviewScreenPreview() {
             sportName = "Volleyball",
             onSaveReviewClick = {},
             onDiscardClick = {},
+            onReplayClick = {},
             onBackClick = {}
         )
     }

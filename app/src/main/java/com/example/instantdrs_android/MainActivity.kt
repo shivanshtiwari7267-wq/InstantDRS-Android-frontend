@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -23,9 +24,18 @@ import com.example.instantdrs_android.ui.screens.CameraScreen
 import com.example.instantdrs_android.ui.screens.RecordingPreviewScreen
 import com.example.instantdrs_android.ui.screens.DRSReviewDashboardScreen
 import com.example.instantdrs_android.ui.screens.TimelineScreen
+import com.example.instantdrs_android.ui.screens.TimelineEvent
+import com.example.instantdrs_android.ui.screens.ReplayScreen
+import com.example.instantdrs_android.ui.screens.SavedReview
 
 enum class Screen {
-    Splash, Login, Register, Home, GameRules, GameSession, Camera, RecordingPreview, DRSReviewDashboard, Timeline, History
+    Splash, Login, Register, Home, GameRules, GameSession, Camera, RecordingPreview, DRSReviewDashboard, Timeline, Replay, History
+}
+
+enum class ReplaySource {
+    Timeline,
+    RecordingPreview,
+    DRSReviewDashboard
 }
 
 class MainActivity : ComponentActivity() {
@@ -36,6 +46,32 @@ class MainActivity : ComponentActivity() {
             InstantDRSAndroidTheme {
                 var currentScreen by remember { mutableStateOf(Screen.Splash) }
                 var selectedGame by remember { mutableStateOf("") }
+                var selectedTimelineEvent by remember { mutableStateOf<TimelineEvent?>(null) }
+                var replaySource by remember { mutableStateOf(ReplaySource.Timeline) }
+                var savedReviews by remember { mutableStateOf<List<SavedReview>>(emptyList()) }
+
+                BackHandler(
+                    enabled = currentScreen !in listOf(Screen.Splash, Screen.Login, Screen.Home)
+                ) {
+                    currentScreen = when (currentScreen) {
+                        Screen.Register -> Screen.Login
+                        Screen.GameRules -> Screen.Home
+                        Screen.GameSession -> Screen.GameRules
+                        Screen.Camera -> Screen.GameSession
+                        Screen.RecordingPreview -> Screen.Camera
+                        Screen.DRSReviewDashboard -> Screen.Camera
+                        Screen.Timeline -> Screen.DRSReviewDashboard
+                        Screen.Replay -> {
+                            when (replaySource) {
+                                ReplaySource.RecordingPreview -> Screen.RecordingPreview
+                                ReplaySource.DRSReviewDashboard -> Screen.DRSReviewDashboard
+                                else -> Screen.Timeline
+                            }
+                        }
+                        Screen.History -> Screen.Home
+                        else -> currentScreen
+                    }
+                }
 
                 when (currentScreen) {
                     Screen.Splash -> {
@@ -101,6 +137,11 @@ class MainActivity : ComponentActivity() {
                             sportName = selectedGame,
                             onSaveReviewClick = { currentScreen = Screen.DRSReviewDashboard },
                             onDiscardClick = { currentScreen = Screen.Camera },
+                            onReplayClick = {
+                                replaySource = ReplaySource.RecordingPreview
+                                selectedTimelineEvent = null
+                                currentScreen = Screen.Replay
+                            },
                             onBackClick = { currentScreen = Screen.Camera }
                         )
                     }
@@ -116,22 +157,80 @@ class MainActivity : ComponentActivity() {
                             confidence = 94,
                             ruleName = rules.firstOrNull() ?: "Decision Review",
                             reviewId = "DRS-0001",
-                            onViewEvidenceClick = { /* Placeholder for Evidence Quality Screen */ },
                             onTimelineClick = { currentScreen = Screen.Timeline },
-                            onReplayClick = { /* Placeholder for Replay Screen */ },
-                            onSaveReviewClick = { /* Placeholder for backend save */ },
+                            onReplayClick = { 
+                                replaySource = ReplaySource.DRSReviewDashboard
+                                selectedTimelineEvent = null
+                                currentScreen = Screen.Replay 
+                            },
+                            onSaveReviewClick = { 
+                                val newReview = SavedReview(
+                                    id = savedReviews.size + 1,
+                                    sportName = selectedGame,
+                                    gameName = "Game Session ${savedReviews.size + 1}",
+                                    ruleName = rules.firstOrNull() ?: "Decision Review",
+                                    decision = "BALL IN",
+                                    dateTime = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+                                )
+                                savedReviews = listOf(newReview) + savedReviews
+                                android.widget.Toast.makeText(this@MainActivity, "REVIEW SAVED", android.widget.Toast.LENGTH_SHORT).show()
+                                currentScreen = Screen.Home
+                            },
                             onBackClick = { currentScreen = Screen.Camera }
                         )
                     }
                     Screen.Timeline -> {
                         TimelineScreen(
                             sportName = selectedGame,
-                            onReplayEventClick = { /* Placeholder for Replay Screen */ },
+                            onReplayEventClick = { event -> 
+                                replaySource = ReplaySource.Timeline
+                                selectedTimelineEvent = event
+                                currentScreen = Screen.Replay 
+                            },
                             onBackClick = { currentScreen = Screen.DRSReviewDashboard }
                         )
                     }
+                    Screen.Replay -> {
+                        val event = selectedTimelineEvent
+                        if (event != null) {
+                            ReplayScreen(
+                                sportName = selectedGame,
+                                eventTime = event.time,
+                                ruleName = event.title,
+                                decision = event.result ?: "REVIEW",
+                                confidence = 94,
+                                eventDescription = event.description,
+                                onBackClick = { 
+                                    currentScreen = when (replaySource) {
+                                        ReplaySource.RecordingPreview -> Screen.RecordingPreview
+                                        ReplaySource.DRSReviewDashboard -> Screen.DRSReviewDashboard
+                                        else -> Screen.Timeline
+                                    }
+                                },
+                                onFullScreenClick = { /* Placeholder */ }
+                            )
+                        } else {
+                            ReplayScreen(
+                                sportName = selectedGame,
+                                eventTime = "00:00",
+                                ruleName = "Recorded Game",
+                                decision = "REVIEW",
+                                confidence = 0,
+                                eventDescription = "Recorded game preview",
+                                onBackClick = { 
+                                    currentScreen = when (replaySource) {
+                                        ReplaySource.RecordingPreview -> Screen.RecordingPreview
+                                        ReplaySource.DRSReviewDashboard -> Screen.DRSReviewDashboard
+                                        else -> Screen.Timeline
+                                    }
+                                },
+                                onFullScreenClick = { /* Placeholder */ }
+                            )
+                        }
+                    }
                     Screen.History -> {
                         HistoryScreen(
+                            reviews = savedReviews,
                             onNavigateBack = { currentScreen = Screen.Home }
                         )
                     }

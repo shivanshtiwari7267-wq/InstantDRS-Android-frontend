@@ -29,7 +29,7 @@ data class TimelineEvent(
 @Composable
 fun TimelineScreen(
     sportName: String,
-    onReplayEventClick: () -> Unit,
+    onReplayEventClick: (TimelineEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
     val spacing = LocalSpacing.current
@@ -110,7 +110,7 @@ fun TimelineScreen(
             // Actions
             InstantDRSButton(
                 text = "REPLAY EVENT",
-                onClick = onReplayEventClick,
+                onClick = { onReplayEventClick(selectedEvent) },
                 modifier = Modifier.padding(bottom = spacing.medium)
             )
 

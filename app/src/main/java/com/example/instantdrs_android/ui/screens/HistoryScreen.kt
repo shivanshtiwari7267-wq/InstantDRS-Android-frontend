@@ -16,16 +16,18 @@ import com.example.instantdrs_android.ui.components.InstantDRSScreenContainer
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.theme.LocalSpacing
 
-data class MockHistoryGame(val title: String, val date: String, val status: String)
-
-val mockHistoryGames = listOf(
-    MockHistoryGame("Finals Match", "20 Aug 2026", "Completed"),
-    MockHistoryGame("Semi Final", "19 Aug 2026", "Completed"),
-    MockHistoryGame("Quarter Final", "18 Aug 2026", "Completed")
+data class SavedReview(
+    val id: Int,
+    val sportName: String,
+    val gameName: String,
+    val ruleName: String,
+    val decision: String,
+    val dateTime: String
 )
 
 @Composable
 fun HistoryScreen(
+    reviews: List<SavedReview> = emptyList(),
     onNavigateBack: () -> Unit = {}
 ) {
     InstantDRSScreenContainer {
@@ -51,29 +53,65 @@ fun HistoryScreen(
                     .padding(bottom = LocalSpacing.current.medium)
             )
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.medium)
-            ) {
-                items(mockHistoryGames) { game ->
-                    InstantDRSCard {
+            if (reviews.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = game.title,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = game.date,
-                            style = MaterialTheme.typography.bodyMedium
+                            text = "NO SAVED REVIEWS",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(LocalSpacing.current.small))
                         Text(
-                            text = game.status,
-                            style = MaterialTheme.typography.labelSmall,
+                            text = "Your saved DRS reviews will appear here.",
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.medium)
+                ) {
+                    items(reviews) { review ->
+                        InstantDRSCard {
+                            Text(
+                                text = review.gameName.uppercase(),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = review.sportName,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(bottom = LocalSpacing.current.small)
+                            )
+                            
+                            Text(
+                                text = "Rule: ${review.ruleName}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = "Decision: ${review.decision}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Date: ${review.dateTime}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = LocalSpacing.current.small)
+                            )
+                        }
                     }
                 }
             }
@@ -92,6 +130,17 @@ fun HistoryScreen(
 @Composable
 fun HistoryScreenPreview() {
     InstantDRSAndroidTheme {
-        HistoryScreen()
+        HistoryScreen(
+            reviews = listOf(
+                SavedReview(
+                    id = 1,
+                    sportName = "Volleyball",
+                    gameName = "FINAL MATCH",
+                    ruleName = "Ball In / Out",
+                    decision = "BALL IN",
+                    dateTime = "20 Aug 2026, 19:45"
+                )
+            )
+        )
     }
 }

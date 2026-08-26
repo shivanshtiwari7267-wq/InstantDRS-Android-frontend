@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +32,10 @@ fun CameraScreen(
 ) {
     var recordingState by remember { mutableStateOf("READY") }
     var isFullScreen by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isFullScreen) {
+        isFullScreen = false
+    }
 
     if (isFullScreen) {
         FullScreenCameraMode(

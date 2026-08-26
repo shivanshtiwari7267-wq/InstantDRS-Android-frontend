@@ -24,7 +24,6 @@ fun DRSReviewDashboardScreen(
     confidence: Int,
     ruleName: String,
     reviewId: String,
-    onViewEvidenceClick: () -> Unit,
     onTimelineClick: () -> Unit,
     onReplayClick: () -> Unit,
     onSaveReviewClick: () -> Unit,
@@ -178,12 +177,6 @@ fun DRSReviewDashboardScreen(
             }
 
             // Actions
-            InstantDRSButton(
-                text = "VIEW EVIDENCE",
-                onClick = onViewEvidenceClick,
-                modifier = Modifier.padding(bottom = spacing.small)
-            )
-
             InstantDRSSecondaryButton(
                 text = "TIMELINE",
                 onClick = onTimelineClick,
@@ -249,7 +242,6 @@ fun DRSReviewDashboardScreenPreview() {
             confidence = 94,
             ruleName = "Ball In / Out",
             reviewId = "DRS-0001",
-            onViewEvidenceClick = {},
             onTimelineClick = {},
             onReplayClick = {},
             onSaveReviewClick = {},

@@ -24,20 +24,19 @@ import com.example.instantdrs_android.ui.components.InstantDRSScreenContainer
 import com.example.instantdrs_android.ui.components.InstantDRSStatusBadge
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.theme.LocalSpacing
-
-data class MockSport(val name: String, val status: String, val rules: String, val imageRes: Int)
-
-val mockSports = listOf(
-    MockSport("Volleyball", "DRS Available", "Ball In/Out • Net Touch", R.mipmap.volleyball),
-    MockSport("Tennis", "DRS Available", "Line/Out Review", R.mipmap.tennis),
-    MockSport("Cricket", "DRS Available", "Decision Review", R.mipmap.cricket)
-)
+import com.example.instantdrs_android.data.model.Sport
 
 @Composable
 fun HomeScreen(
     onGameClick: (String) -> Unit = {},
     onHistoryClick: () -> Unit = {}
 ) {
+    val sports = listOf(
+        Sport(sportType = "CRICKET", name = "Cricket", drsAvailable = true),
+        Sport(sportType = "VOLLEYBALL", name = "Volleyball", drsAvailable = true),
+        Sport(sportType = "TENNIS", name = "Tennis", drsAvailable = true)
+    )
+
     InstantDRSScreenContainer {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -67,7 +66,14 @@ fun HomeScreen(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(LocalSpacing.current.medium)
             ) {
-                items(mockSports) { sport ->
+                items(sports) { sport ->
+                    val imageRes = when (sport.sportType) {
+                        "CRICKET" -> R.mipmap.cricket
+                        "VOLLEYBALL" -> R.mipmap.volleyball
+                        "TENNIS" -> R.mipmap.tennis
+                        else -> R.mipmap.ic_launcher
+                    }
+                    
                     InstantDRSCard(
                         modifier = Modifier.clickable { onGameClick(sport.name) }
                     ) {
@@ -76,7 +82,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
-                                painter = painterResource(sport.imageRes),
+                                painter = painterResource(imageRes),
                                 contentDescription = sport.name,
                                 modifier = Modifier
                                     .size(64.dp)
@@ -94,15 +100,9 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.height(LocalSpacing.current.small))
                                 InstantDRSStatusBadge(
-                                    text = sport.status,
-                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    text = if (sport.drsAvailable) "DRS Available" else "DRS Unavailable",
+                                    containerColor = if (sport.drsAvailable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                                     contentColor = MaterialTheme.colorScheme.onPrimary
-                                )
-                                Spacer(modifier = Modifier.height(LocalSpacing.current.medium))
-                                Text(
-                                    text = sport.rules,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }
@@ -117,10 +117,10 @@ fun HomeScreen(
                 onClick = onHistoryClick
             )
         }
-    }
+    } 
 }
 
- @Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     InstantDRSAndroidTheme {

@@ -27,9 +27,12 @@ import com.example.instantdrs_android.ui.screens.TimelineScreen
 import com.example.instantdrs_android.ui.screens.TimelineEvent
 import com.example.instantdrs_android.ui.screens.ReplayScreen
 import com.example.instantdrs_android.ui.screens.SavedReview
+import com.example.instantdrs_android.ui.screens.RecordedVideosScreen
+import com.example.instantdrs_android.ui.screens.VideoPlayerScreen
+
 
 enum class Screen {
-    Splash, Login, Register, Home, GameRules, GameSession, Camera, RecordingPreview, DRSReviewDashboard, Timeline, Replay, History
+    Splash, Login, Register, Home, GameRules, GameSession, Camera, RecordingPreview, DRSReviewDashboard, Timeline, Replay, History, RecordedVideos, VideoPlayer
 }
 
 enum class ReplaySource {
@@ -49,6 +52,7 @@ class MainActivity : ComponentActivity() {
                 var selectedTimelineEvent by remember { mutableStateOf<TimelineEvent?>(null) }
                 var replaySource by remember { mutableStateOf(ReplaySource.Timeline) }
                 var savedReviews by remember { mutableStateOf<List<SavedReview>>(emptyList()) }
+                var selectedVideoPath by remember { mutableStateOf("") }
 
                 BackHandler(
                     enabled = currentScreen !in listOf(Screen.Splash, Screen.Login, Screen.Home)
@@ -58,6 +62,8 @@ class MainActivity : ComponentActivity() {
                         Screen.GameRules -> Screen.Home
                         Screen.GameSession -> Screen.GameRules
                         Screen.Camera -> Screen.GameSession
+                        Screen.RecordedVideos -> Screen.Camera
+                        Screen.VideoPlayer -> Screen.RecordedVideos
                         Screen.RecordingPreview -> Screen.Camera
                         Screen.DRSReviewDashboard -> Screen.Camera
                         Screen.Timeline -> Screen.DRSReviewDashboard
@@ -127,9 +133,24 @@ class MainActivity : ComponentActivity() {
                             sportName = selectedGame,
                             rules = rules,
                             onViewRulesClick = { currentScreen = Screen.GameRules },
-                            onViewRecordingClick = { currentScreen = Screen.RecordingPreview },
+                            onViewRecordingClick = { currentScreen = Screen.RecordedVideos },
                             onDrsReviewClick = { currentScreen = Screen.DRSReviewDashboard },
                             onBackClick = { currentScreen = Screen.GameSession }
+                        )
+                    }
+                    Screen.RecordedVideos -> {
+                        RecordedVideosScreen(
+                            onVideoClick = { path ->
+                                selectedVideoPath = path
+                                currentScreen = Screen.VideoPlayer
+                            },
+                            onBackClick = { currentScreen = Screen.Camera }
+                        )
+                    }
+                    Screen.VideoPlayer -> {
+                        VideoPlayerScreen(
+                            videoPath = selectedVideoPath,
+                            onBackClick = { currentScreen = Screen.RecordedVideos }
                         )
                     }
                     Screen.RecordingPreview -> {

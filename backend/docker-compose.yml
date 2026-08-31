@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: instant_drs_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret_change_me}
+      MYSQL_DATABASE: instant_drs
+      MYSQL_USER: ${DB_USERNAME:-drs_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-drs_secret_change_me}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./instant-drs-backend/instant-drs-backend
+    container_name: instant_drs_backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:mysql://db:3306/instant_drs?allowPublicKeyRetrieval=true&useSSL=false
+      - DB_USERNAME=${DB_USERNAME:-drs_user}
+      - DB_PASSWORD=${DB_PASSWORD:-drs_secret_change_me}
+      - JWT_SECRET=${JWT_SECRET:-thisIsAVerySecureSecretKeyForJWTAuthThatIsLongEnough_ChangeMe}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost}
+      - STORAGE_PATH=/app/recordings
+      - SERVER_PORT=8080
+      - FFMPEG_PATH=/usr/bin/ffmpeg
+    volumes:
+      - recordings_data:/app/recordings
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health/video-pipeline"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./instant-drs-frontend
+    container_name: instant_drs_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  recordings_data:

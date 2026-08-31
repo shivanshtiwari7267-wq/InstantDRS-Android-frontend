@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.instantdrs.android.AuthLifecycleTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-08-20T20:13:56" hostname="DESKTOP-K855PD9" time="0.033">
+  <properties/>
+  <testcase name="testErrorState" classname="com.instantdrs.android.AuthLifecycleTest" time="0.022"/>
+  <testcase name="testAuthenticationTransitions" classname="com.instantdrs.android.AuthLifecycleTest" time="0.006"/>
+  <testcase name="testUnauthenticatedState" classname="com.instantdrs.android.AuthLifecycleTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

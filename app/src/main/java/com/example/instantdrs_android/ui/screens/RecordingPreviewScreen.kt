@@ -165,10 +165,12 @@ fun RecordingPreviewScreen(
                 modifier = Modifier.padding(bottom = spacing.small)
             )
 
-            // Save Review Button
             InstantDRSButton(
                 text = "SAVE REVIEW",
-                onClick = onSaveReviewClick,
+                onClick = {
+                    android.util.Log.d("DRS_DEBUG", "Navigating to Dashboard via RecordingPreviewScreen dummy button!")
+                    onSaveReviewClick()
+                },
                 modifier = Modifier.padding(bottom = spacing.small)
             )
 

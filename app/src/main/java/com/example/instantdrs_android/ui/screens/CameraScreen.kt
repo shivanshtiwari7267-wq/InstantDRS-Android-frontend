@@ -52,12 +52,13 @@ fun CameraScreen(
     rules: List<String>,
     onViewRulesClick: () -> Unit,
     onViewRecordingClick: () -> Unit,
-    onDrsReviewClick: () -> Unit,
+    onDrsReviewClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
     var recordingState by remember { mutableStateOf("READY") }
     var isFullScreen by remember { mutableStateOf(false) }
     var recordingDuration by remember { mutableIntStateOf(0) }
+    var lastRecordedVideo by remember { mutableStateOf<String?>(null) }
 
     
     LaunchedEffect(recordingState) {
@@ -133,6 +134,7 @@ fun CameraScreen(
                         Toast.makeText(context, "Recording error: ${recordEvent.error}", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Video saved", Toast.LENGTH_SHORT).show()
+                        lastRecordedVideo = file.absolutePath
                     }
                     activeRecording = null
                 }
@@ -178,7 +180,13 @@ fun CameraScreen(
             onEnterFullScreen = { isFullScreen = true },
             onViewRulesClick = onViewRulesClick,
             onViewRecordingClick = onViewRecordingClick,
-            onDrsReviewClick = onDrsReviewClick,
+            onDrsReviewClick = { 
+                if (lastRecordedVideo != null) {
+                    onDrsReviewClick(lastRecordedVideo!!)
+                } else {
+                    Toast.makeText(context, "Please record a video first", Toast.LENGTH_SHORT).show()
+                }
+            },
             onBackClick = onBackClick
         )
     }

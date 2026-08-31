@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import android.util.Log
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.instantdrs_android.ui.theme.InstantDRSAndroidTheme
 import com.example.instantdrs_android.ui.screens.SplashScreen
@@ -53,6 +54,9 @@ class MainActivity : ComponentActivity() {
                 var replaySource by remember { mutableStateOf(ReplaySource.Timeline) }
                 var savedReviews by remember { mutableStateOf<List<SavedReview>>(emptyList()) }
                 var selectedVideoPath by remember { mutableStateOf("") }
+                var currentReviewResult by remember { mutableStateOf<com.example.instantdrs_android.data.remote.DrsReviewResponse?>(null) }
+                var currentReviewStatus by remember { mutableStateOf("READY") }
+                var currentEvidenceVideoUrl by remember { mutableStateOf<String?>(null) }
 
                 BackHandler(
                     enabled = currentScreen !in listOf(Screen.Splash, Screen.Login, Screen.Home)
@@ -134,7 +138,10 @@ class MainActivity : ComponentActivity() {
                             rules = rules,
                             onViewRulesClick = { currentScreen = Screen.GameRules },
                             onViewRecordingClick = { currentScreen = Screen.RecordedVideos },
-                            onDrsReviewClick = { currentScreen = Screen.DRSReviewDashboard },
+                            onDrsReviewClick = { videoPath ->
+                                selectedVideoPath = videoPath
+                                currentScreen = Screen.VideoPlayer
+                            },
                             onBackClick = { currentScreen = Screen.GameSession }
                         )
                     }
@@ -150,7 +157,14 @@ class MainActivity : ComponentActivity() {
                     Screen.VideoPlayer -> {
                         VideoPlayerScreen(
                             videoPath = selectedVideoPath,
-                            onBackClick = { currentScreen = Screen.RecordedVideos }
+                            onBackClick = { currentScreen = Screen.RecordedVideos },
+                            onReviewComplete = { result, sport, status, evidenceUrl ->
+                                currentReviewResult = result
+                                selectedGame = sport
+                                currentReviewStatus = status
+                                currentEvidenceVideoUrl = evidenceUrl
+                                currentScreen = Screen.DRSReviewDashboard
+                            }
                         )
                     }
                     Screen.RecordingPreview -> {
@@ -172,12 +186,40 @@ class MainActivity : ComponentActivity() {
                             "cricket" -> listOf("Decision Review")
                             else -> listOf("Ball In / Out", "Net Touch")
                         }
+                        
+                        val statusText = currentReviewStatus
+                        val decisionText = if (statusText == "FAILED") "FAILED" 
+                                           else if (statusText == "INVALID_VIDEO") "INVALID" 
+                                           else if (statusText == "FALLBACK_REPLAY") "NO DECISION"
+                                           else currentReviewResult?.decision ?: "PENDING"
+                                           
+                        val conf = (currentReviewResult?.drsConfidence?.times(100) ?: 0.0).toInt()
+                        
+                        val reviewIdText = if (statusText == "FAILED" || statusText == "INVALID_VIDEO") {
+                            "N/A"
+                        } else if (currentReviewResult?.analysisJobId != null) {
+                            "DRS-${currentReviewResult?.analysisJobId}"
+                        } else {
+                            "N/A"
+                        }
+                        
+                        Log.d("DRS_DEBUG", """
+                            DASHBOARD DATA:
+                            reviewId = $reviewIdText
+                            decision = $decisionText
+                            confidence = $conf
+                            status = $statusText
+                            rule = ${rules.firstOrNull() ?: "Decision Review"}
+                        """.trimIndent())
+                        
                         DRSReviewDashboardScreen(
                             sportName = selectedGame,
-                            decision = "BALL IN",
-                            confidence = 94,
+                            decision = decisionText,
+                            confidence = conf,
                             ruleName = rules.firstOrNull() ?: "Decision Review",
-                            reviewId = "DRS-0001",
+                            reviewId = reviewIdText,
+                            status = statusText,
+                            evidenceVideoUrl = currentEvidenceVideoUrl,
                             onTimelineClick = { currentScreen = Screen.Timeline },
                             onReplayClick = { 
                                 replaySource = ReplaySource.DRSReviewDashboard
@@ -190,7 +232,7 @@ class MainActivity : ComponentActivity() {
                                     sportName = selectedGame,
                                     gameName = "Game Session ${savedReviews.size + 1}",
                                     ruleName = rules.firstOrNull() ?: "Decision Review",
-                                    decision = "BALL IN",
+                                    decision = decisionText,
                                     dateTime = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
                                 )
                                 savedReviews = listOf(newReview) + savedReviews
@@ -219,7 +261,7 @@ class MainActivity : ComponentActivity() {
                                 eventTime = event.time,
                                 ruleName = event.title,
                                 decision = event.result ?: "REVIEW",
-                                confidence = 94,
+                                confidence = (currentReviewResult?.drsConfidence?.times(100) ?: 0.0).toInt(),
                                 eventDescription = event.description,
                                 onBackClick = { 
                                     currentScreen = when (replaySource) {
